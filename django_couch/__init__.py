@@ -44,7 +44,7 @@ def all_docs(db, skip_design_docs = False):
             yield row
 
 def design_docs(db):
-    return dict([(r.id, r.doc['views'].keys()) for r in db.view('_all_docs', startkey = "_design/", endkey = "_design0", include_docs = True).rows])
+    return view_iterator(db, '_all_docs', startkey = "_design/", endkey = "_design0", include_docs = True)
 
 
 def view_iterator(db, view, **kwargs):
@@ -88,7 +88,8 @@ def generate_id(db, prefix, suffix_length = 12, id_string = '%s%s'):
 class CouchMiddleware:
     
     def process_request(self, request):
-        
-        request.db = db('default')
+        for dbname in settings.COUCHDB:
+            setattr(request, dbname, db(dbname))
+
         
         

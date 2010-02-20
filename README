@@ -1,0 +1,68 @@
+===================================================================
+================= MIDDLEWARE ======================================
+===================================================================
+Installation:
+You must make this module visible to your project before use.
+For example, 
+ln -s /usr/src/django-couch-utils/django_couch /usr/lib/pythonx.y/site-packages
+
+After that, modify settings.py
+
+MIDDLEWARE_CLASSES = (
+    '...........',
+    'django_couch.CouchMiddleware', 
+    '...........',
+)
+
+Also, define databases:
+
+COUCHDB = {
+    'database_name1': {
+        'server': 'http://localhost:5984',
+        'database': 'database1',
+    },
+    'database_name2': {
+        'server': 'http://remotehost:5988',
+        'database': 'database2',
+    }
+}
+
+After that, any view function can access database as request.database_name1 or request.database_name2
+
+
+
+===================================================================
+=============== Updater (bulk document update helper  =============
+===================================================================
+
+Пример использования bulk-update:
+
+from django_couch import Updater
+
+updater = Updater(request.db)
+
+for document in documents:
+    updater.append(document)
+
+updater.push()
+
+документы будут пушиться в базу каждые N накопленных документов или при ручном вызове push() (нужно вызывать в конце для отправки остатков документов).
+
+По-умолчанию, N = 300
+
+
+===================================================================
+================== View iterator (very long views iterator) =======
+===================================================================
+
+from django_couch import view_iterator
+
+# Эта функция - пример использования, но она же есть и в django_couch в таком же виде
+def all_docs(skip_design_docs = False):
+
+    for row in view_iterator('_all_docs'):
+        if not (skip_design_docs and row.id.startswith('_design/')):
+            yield row
+
+
+view_iterator() может содержать все обычные параметры, передаваемые в db.view() (startkey, key, limit и т.п.)
