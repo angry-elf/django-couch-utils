@@ -48,7 +48,7 @@ def design_docs(db):
 
 
 def view_iterator(db, view, **kwargs):
-    block_size = 100
+    block_size = 300
 
     v = db.view(view, limit = block_size, **kwargs)
     while len(v.rows) > 1:

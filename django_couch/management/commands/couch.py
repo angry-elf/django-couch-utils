@@ -12,7 +12,6 @@ from couchdb import Server, Document, ResourceNotFound
 import django_couch
 from optparse import make_option
 
-import simplejson
 import urllib
 import getopt
 from datetime import datetime
@@ -27,7 +26,7 @@ class Command(BaseCommand):
         
     )
 
-    help = u'Backup and restore couchdb database. Usage: ./manage.py couch [push|pull]'
+    help = u'Backup and restore couchdb database. Usage: ./manage.py couch [restore|backup]'
 
     extensions = {
         'javascript' : '.js',
