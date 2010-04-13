@@ -1,9 +1,11 @@
 
-from couchdb import Server, Document
+from couchdb import Server, Document, ResourceConflict
 from django.conf import settings
 
 import hashlib
 import random
+
+from translit import slugify
 
 def db(name):
     server = Server(settings.COUCHDB[name]['server'])
@@ -16,7 +18,7 @@ def db(name):
 
 class Updater(object):
     
-    chunk_size = 300
+    chunk_size = 1000
     
     def __init__(self, db):
         self.documents = []
@@ -31,7 +33,6 @@ class Updater(object):
 
 
     def push(self):
-        #print 'pushing'
         if self.documents:
             self.db.update(self.documents)
             self.documents = []
@@ -78,12 +79,42 @@ def generate_id(db, prefix, suffix_length = 12, id_string = '%s%s'):
     rand = hashlib.sha1(str(random.random())).hexdigest()[:suffix_length]
     
     key = id_string % (prefix, '')
+    max_retry = 1000
     
     while key in db:
         rand = hashlib.sha1(str(random.random())).hexdigest()[:suffix_length]
         key = id_string % (prefix, '_%s' % rand)
+        max_retry -= 1
+
+        if max_retry < 0:
+            raise Exception("Retry-limit reached during document id generation")
+
     return key
+
+def generate_doc(db, prefix, suffix_length = 12, id_string = '%s%s', max_retry = 100, data = {}):
+    """Generate doc with unique ID, based on provided prefix and random suffix. Retries on duplicate"""
     
+    assert not '_id' in data
+    assert not '_rev' in data
+    assert max_retry > 0
+    assert type(max_retry) == int
+    
+    doc = data.copy()
+    
+    while True:
+        doc_id = generate_id(db, prefix, suffix_length, id_string)
+        try:
+            db[doc_id] = doc
+            break
+        except ResourceConflict:
+            pass
+
+        max_retry -= 1
+        if max_retry < 0:
+            raise Exception("Retry-limit reached during document generation")
+        
+
+    return db[doc_id]
 
 class CouchMiddleware:
     
