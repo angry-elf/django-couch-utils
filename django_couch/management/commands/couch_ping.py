@@ -29,7 +29,7 @@ class Command(BaseCommand):
                 
                 if verbosity >= 2:
                     print 'quering view %s/%s' % (view, function)
-                db.view('%s/%s' % (view, function), limit = 1)
+                db.view('%s/%s' % (view, function), limit = 0).rows
                 
 
             
