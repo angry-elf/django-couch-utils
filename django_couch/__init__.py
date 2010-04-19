@@ -101,20 +101,24 @@ def generate_doc(db, prefix, suffix_length = 12, id_string = '%s%s', max_retry =
     
     doc = data.copy()
     
+    rand = hashlib.sha1(str(random.random())).hexdigest()[:suffix_length]
+    doc_id = id_string % (prefix, '')
+    
     while True:
-        doc_id = generate_id(db, prefix, suffix_length, id_string)
+        
         try:
             db[doc_id] = doc
             break
         except ResourceConflict:
             pass
-
+        
         max_retry -= 1
         if max_retry < 0:
             raise Exception("Retry-limit reached during document generation")
         
-
-    return db[doc_id]
+        rand = hashlib.sha1(str(random.random())).hexdigest()[:suffix_length]
+        doc_id = id_string % (prefix, '_%s' % rand)
+        
 
 class CouchMiddleware:
     
