@@ -12,24 +12,26 @@ class Command(BaseCommand):
 
     help = u'Requests all couchdb views. Usage: ./manage.py couch_ping <db>, where <db> is couchdb definition from settings.py'
 
-    def execute(self, db_key, **options):
-        verbosity = int(options.get('verbosity'))
-        if verbosity >= 2:
-            print "Using database", db_key
-            print "Settings data:", settings.COUCHDB[db_key]
-            
-        db = django_couch.db(db_key)
+    def execute(self, *args, **options):
         
-        for row in django_couch.design_docs(db):
-            nop, view = row.id.split('/', 1)
+        verbosity = int(options.get('verbosity'))
+        for db_key in args:
+            if verbosity >= 2:
+                print "Using database", db_key
+                print "Settings data:", settings.COUCHDB[db_key]
+
+            db = django_couch.db(db_key)
             
-            d = db[row.id]
-            
-            for function in d['views']:
+            for row in django_couch.design_docs(db):
+                nop, view = row.id.split('/', 1)
                 
-                if verbosity >= 2:
-                    print 'quering view %s/%s' % (view, function)
-                db.view('%s/%s' % (view, function), limit = 0).rows
+                d = db[row.id]
+
+                for function in d['views']:
+
+                    if verbosity >= 2:
+                        print 'quering view %s/%s' % (view, function)
+                    db.view('%s/%s' % (view, function), limit = 0).rows
                 
 
             
