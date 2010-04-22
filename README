@@ -35,7 +35,7 @@ After that, any view function can access database as request.database_name1 or r
 =============== Updater (bulk document update helper  =============
 ===================================================================
 
-Пример использования bulk-update:
+Usefull example:
 
 from django_couch import Updater
 
@@ -46,9 +46,9 @@ for document in documents:
 
 updater.push()
 
-документы будут пушиться в базу каждые N накопленных документов или при ручном вызове push() (нужно вызывать в конце для отправки остатков документов).
+Documents will be pushed into database every N documents or manually by invoking push() method (still need to call push() after cycle to push tail).
 
-По-умолчанию, N = 300
+Default N value - 300
 
 
 ===================================================================
@@ -66,3 +66,20 @@ def all_docs(skip_design_docs = False):
 
 
 view_iterator() может содержать все обычные параметры, передаваемые в db.view() (startkey, key, limit и т.п.)
+
+===================================================================
+============== Authentication backend =============================
+===================================================================
+Define database and authentication view name
+:settings.py
+COUCHDB_AUTH_DB = 'database1'
+COUCHDB_AUTH_VIEW = 'auth/auth'
+
+Function may be like this
+function(doc) {
+  if (doc.type == "user") {
+    emit(doc.login, doc.password);
+  }
+}
+
+password must be in django-style ("<hash-function>$<salt>$<hash>")
