@@ -99,7 +99,7 @@ def generate_doc(db, prefix, suffix_length = 12, id_string = '%s%s', max_retry =
     assert max_retry > 0
     assert type(max_retry) == int
     
-    doc = data.copy()
+    #doc = data.copy()
     
     rand = hashlib.sha1(str(random.random())).hexdigest()[:suffix_length]
     doc_id = id_string % (prefix, '')
@@ -107,7 +107,7 @@ def generate_doc(db, prefix, suffix_length = 12, id_string = '%s%s', max_retry =
     while True:
         
         try:
-            db[doc_id] = doc
+            db[doc_id] = data
             break
         except ResourceConflict:
             pass
