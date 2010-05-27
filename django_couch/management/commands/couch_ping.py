@@ -7,6 +7,23 @@ from django.conf import settings
 import django_couch
 #from optparse import make_option
 
+import multiprocessing
+
+class Pinger(multiprocessing.Process):
+    def __init__(self, verbosity, db_key, view_name, func_name):
+        multiprocessing.Process.__init__(self)
+
+        self.verbosity = verbosity
+        self.db_key = db_key
+        self.view_name = view_name
+        self.func_name = func_name
+        
+    def run(self):
+        db = django_couch.db(self.db_key)
+        if self.verbosity >= 2:
+            print 'quering view %s/%s' % (self.view_name, self.func_name)
+        db.view('%s/%s' % (self.view_name, self.func_name), limit = 0).rows
+                
 
 class Command(BaseCommand):
 
@@ -15,6 +32,9 @@ class Command(BaseCommand):
     def execute(self, *args, **options):
         
         verbosity = int(options.get('verbosity'))
+        
+        workers = []
+        
         for db_key in args:
             if verbosity >= 2:
                 print "Using database", db_key
@@ -28,12 +48,18 @@ class Command(BaseCommand):
                 d = db[row.id]
 
                 for function in d['views']:
-
-                    if verbosity >= 2:
-                        print 'quering view %s/%s' % (view, function)
-                    db.view('%s/%s' % (view, function), limit = 0).rows
+                    worker = Pinger(verbosity, db_key, view, function)
+                    workers.append(worker)
+                    worker.start()
                 
+        for worker in workers:
+            if verbosity > 1:
+                print "Waiting for worker %s (%s/%s @ %s)..." % (worker, worker.view_name, worker.func_name, worker.db_key)
+            worker.join()
+            print '  done'
 
+        
+        
             
 
 
