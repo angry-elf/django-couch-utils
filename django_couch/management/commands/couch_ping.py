@@ -56,7 +56,8 @@ class Command(BaseCommand):
             if verbosity > 1:
                 print "Waiting for worker %s (%s/%s @ %s)..." % (worker, worker.view_name, worker.func_name, worker.db_key)
             worker.join()
-            print '  done'
+            if verbosity > 1:
+                print '  done'
 
         
         
