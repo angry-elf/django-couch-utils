@@ -1,5 +1,5 @@
 
-from couchdb import Server, Document, ResourceConflict
+from couchdb import Server, Document, ResourceConflict, ResourceNotFound
 from django.conf import settings
 
 import hashlib
