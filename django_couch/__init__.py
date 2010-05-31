@@ -7,7 +7,15 @@ import random
 
 from translit import slugify
 
-def db(name):
+def db(name = None):
+    """name is key in settings.COUCHDB. If None, returns default database"""
+    
+    if not name:
+        default = [key for key in settings.COUCHDB if settings.COUCHDB[key].get('default')]
+        if len(default) != 1:
+            raise Exception("There are no/multiple default database. Please, check settings.COUCHDB value.")
+        name = default[0]
+        
     server = Server(settings.COUCHDB[name]['server'])
     
     return server[settings.COUCHDB[name]['database']]
