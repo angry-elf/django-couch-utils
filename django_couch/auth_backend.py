@@ -30,7 +30,11 @@ class User(dict):
         if key in self:
             return self[key]
         else:
-            dict.__getattr__(self, key)
+            raise AttributeError('Attribute %s not found in user instance %s' % (key, self.id))
+
+    def has_module_perms(self, module):
+        #print args
+        pass
     
 class CouchBackend(object):
 
