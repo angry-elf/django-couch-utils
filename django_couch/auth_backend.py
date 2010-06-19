@@ -46,7 +46,7 @@ class CouchBackend(object):
 
 
     def authenticate(self, username, password):
-        rows = self.db.view(settings.COUCHDB_AUTH_VIEW, key = username, include_docs = True, limit = 1).rows
+        rows = self.db.view(settings.COUCHDB_AUTH_VIEW, key = username.lower(), include_docs = True, limit = 1).rows
         if len(rows) and check_password(password, rows[0].value):
             return User(rows[0].doc)
         pass
