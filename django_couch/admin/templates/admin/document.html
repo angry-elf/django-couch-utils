@@ -1,0 +1,6 @@
+<a href="{% url couchdb:root %}">Root</a> &raquo;
+<a href="{% url couchdb:app app=app.name %}">{{ app.name|capfirst }}</a> &raquo;
+<a href="{% url couchdb:documents app=app.name doc_type=doc_type %}">{{ doc_type|capfirst }}</a> &raquo;
+{{ doc_id }}
+<br/><br/>
+{{ document.text }}

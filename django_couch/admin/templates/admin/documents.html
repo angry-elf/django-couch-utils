@@ -1,0 +1,26 @@
+<a href="{% url couchdb:root %}">Root</a> &raquo;
+<a href="{% url couchdb:app app=app.name %}">{{ app.name|capfirst }}</a> &raquo;
+{{ doc_type|capfirst }}
+
+<h2>Choose <s>your destiny</s> document</h2>
+<table border=1>
+    <thead>
+      <tr>
+          <th>Key</th>
+          <th>Value</th>
+          <th></th>
+          <th></th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for row in rows %}
+        <tr>
+            <td><a href="{% url couchdb:document app=app.name doc_type=doc_type doc_id=row.id %}">{{ row.key }}</td>
+            <td>{{ row.value }}</td>
+            <td><a href="{% url couchdb:document app=app.name doc_type=doc_type doc_id=row.id %}">Edit</a></td>
+            <td><a href="{% url couchdb:document_delete app=app.name doc_type=doc_type doc_id=row.id %}">Delete</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
