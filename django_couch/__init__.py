@@ -133,6 +133,7 @@ class CouchMiddleware:
     def process_request(self, request):
         for dbname in settings.COUCHDB:
             setattr(request, dbname, db(dbname))
+            request._db = db
 
         
         
