@@ -1,0 +1,19 @@
+{% if app and doc_type and doc_id %}
+<a href="{% url couchdb:root %}">Root</a> &raquo;
+<a href="{% url couchdb:app app=app.name %}">{{ app.name|capfirst }}</a> &raquo;
+<a href="{% url couchdb:documents app=app.name doc_type=doc_type %}">{{ doc_type|capfirst }}</a> &raquo;
+{{ doc_id }}
+<br/><br/>
+{% else %}
+{% if app and doc_type %}
+<a href="{% url couchdb:root %}">Root</a> &raquo;
+<a href="{% url couchdb:app app=app.name %}">{{ app.name|capfirst }}</a> &raquo;
+{{ doc_type|capfirst }}
+{% else %}
+{% if app %}
+<a href="{% url couchdb:root %}">Root</a> &raquo;
+{{ app.name|capfirst }}
+
+{% endif %}
+{% endif %}
+{% endif %}
