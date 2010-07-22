@@ -1,0 +1,10 @@
+<!DOCTYPE html >
+<html>
+    <head>
+        <title>{% block title %}Admin-panel{% endblock %}</title>
+    </head>
+    <body>
+        {% if user.is_authenticated %}Wellcome back, {{ user.username }} (<a href="{% url couchdb:logout %}">Logout</a>){% else %}<a href="/accounts/login/">Login</a>{% endif %}
+        {% block main %}{% endblock %}
+    </body>
+</html>

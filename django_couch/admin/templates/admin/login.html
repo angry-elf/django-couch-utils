@@ -1,0 +1,17 @@
+  <h2>Please, authenticate</h2>
+{% if error_message %}
+<p class="errornote">{{ error_message }}</p>
+{% endif %}
+<form action="" method="post">
+  {% csrf_token %}
+  <table>
+    {{ form.as_table }}
+  </table>
+  <input type="submit" value="Log in" />
+</form>
+
+<script type="text/javascript">
+document.getElementById('id_username').focus()
+</script>
+</div>
+
