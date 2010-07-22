@@ -1,6 +1,7 @@
-<a href="{% url couchdb:root %}">Root</a> &raquo;
-<a href="{% url couchdb:app app=app.name %}">{{ app.name|capfirst }}</a> &raquo;
-{{ doc_type|capfirst }}
+{% extends "admin/base.html" %}
+
+{% block main %}
+{% include "admin/snippets/path.html" %}
 
 <h2>Choose <s>your destiny</s> document</h2>
 <table border=1>
@@ -24,3 +25,5 @@
     </tbody>
 </table>
 
+<a href="{% url couchdb:document_add app=app.name doc_type=doc_type %}">New</a>
+{% endblock %}

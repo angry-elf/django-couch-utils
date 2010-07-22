@@ -1,6 +1,10 @@
+{% extends "admin/base.html" %}
+
+{% block main %}
 {% include "admin/snippets/path.html" %}
 
 <p>Are you sure to delete attachment <strong>{{ filename }}</strong> ({{ file.length|filesizeformat }}) from document <strong>{{ doc_id }}</strong>?</p>
 <form action="" method="post">
   <input type="submit" value="Delete"/>
 </form>
+{% endblock %}

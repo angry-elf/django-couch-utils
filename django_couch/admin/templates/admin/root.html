@@ -1,3 +1,14 @@
+{% extends "admin/base.html" %}
+
+{% block main %}
 {% for app in apps %}
-{% include "admin/app.html" %}
+<div>
+    <h1><a href="{% url couchdb:app app=app.name %}">{{ app.name|capfirst }}</a></h1>
+    <ul>
+        {% for item in app.doc_types %}
+        <li><a href="{% url couchdb:documents app=app.name doc_type=item.type %}">{{ item.name|capfirst }}</a></li>
+        {% endfor %}
+    </ul>
+</div>
 {% endfor %}
+{% endblock %}

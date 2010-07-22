@@ -1,6 +1,10 @@
+{% extends "admin/base.html" %}
+
+{% block main %}
 {% include "admin/snippets/path.html" %}
 
 <p>Are you sure to delete <strong>{{ doc_type }}</strong> with id <strong>{{ doc_id }}</strong>?</p>
 <form action="" method="post">
   <input type="submit" value="Delete"/>
 </form>
+{% endblock %}

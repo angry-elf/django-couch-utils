@@ -1,6 +1,42 @@
-<a href="{% url couchdb:root %}">Root</a> &raquo;
-<a href="{% url couchdb:app app=app.name %}">{{ app.name|capfirst }}</a> &raquo;
-<a href="{% url couchdb:documents app=app.name doc_type=doc_type %}">{{ doc_type|capfirst }}</a> &raquo;
-{{ doc_id }}
-<br/><br/>
-{{ document.text }}
+{% extends "admin/base.html" %}
+
+{% block main %}
+{% include "admin/snippets/path.html" %}
+<h2>Edit {{ doc_type }}</h2>
+{% if form %}
+<form action="" method="post" enctype="multipart/form-data">
+    <table>
+        {{ form.as_table }}
+    </table>
+
+    {% if doc_item.attachments %}
+    <h2>Attachments</h2>
+    {% if document.attachments %}
+    <ul>
+        {% for name, data in document.attachments.iteritems %}
+        <li><a href="{% url couchdb:attachment app=app.name doc_type=doc_type doc_id=document.id filename=name %}">{{ name }}</a> ({{ data.length|filesizeformat }}) <a href="{% url couchdb:attachment_delete app=app.name doc_type=doc_type doc_id=document.id filename=name %}">x</a></li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    <input type="file" name="file1" /><br/>
+    <input type="file" name="file2" /><br/>
+    <input type="file" name="file3" /><br/>
+    {% endif %}
+
+    <br/>
+    <input type="submit" value="Save"/>
+
+</form>
+{% else %}
+<div class="notice">No form for &laquo;{{ app.name }}.{{ doc_type }}&raquo; provided. Using default output.</div>
+<ul>
+{% for key, value in document.items %}
+    <li><strong>{{ key }}</strong>: {{ value }}</li>
+{% endfor %}
+</ul>
+{% endif %}
+
+
+<a href="{% url couchdb:document_delete app=app.name doc_type=doc_type doc_id=doc_id %}">Delete</a>
+{% endblock %}

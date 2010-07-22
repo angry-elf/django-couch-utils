@@ -12,7 +12,7 @@ class CouchAdminForm(forms.Form):
         if not self.TYPE or not self.PREFIX or not self.ID_FIELD:
             raise Exception('Please, specify TYPE, PREFIX and ID_FIELD in your form class')
     
-    def save(self):
+    def save(self, files = None):
         self.initial.update(self.cleaned_data)
         
         if not self.initial.get('_id'):
@@ -20,5 +20,9 @@ class CouchAdminForm(forms.Form):
             self.initial.create('%s%s' % (self.PREFIX, slugify(self.cleaned_data[self.ID_FIELD])))
         else:
             self.initial.save()
-            
-    
+
+        if files:
+            for f in files:
+                att = files[f]
+                self.initial.put_attachment(att, att.name, att.content_type)
+                
