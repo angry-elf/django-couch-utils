@@ -6,7 +6,8 @@ doc_types = [
         'type': 'page',
         'db': None, # means default
         'view': 'pages/list',
-        'form': FlatpageForm
+        'form': FlatpageForm,
+        'attachments': True,
     },
 
 ]
