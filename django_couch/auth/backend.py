@@ -31,7 +31,7 @@ class User(Document):
         else:
             backend = None
             
-        if hasattr(self, 'last_login'):
+        if hasattr(self, 'last_login') and type(self.last_login) == datetime:
             self.last_login = self.last_login.strftime(settings.DATETIME_FMT)
 
         Document.save(self, *args, **kwargs)
