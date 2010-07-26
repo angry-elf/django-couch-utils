@@ -25,11 +25,17 @@ class User(Document):
         pass
 
     def save(self, *args, **kwargs):
-        backend = self.backend
+        if hasattr(self, 'backend'):
+            backend = self.backend
+        else:
+            backend = None
+            
         self.last_login = self.last_login.strftime(settings.DATETIME_FMT)
         del(self.backend)
         Document.save(self, *args, **kwargs)
-        self.backend = backend
+
+        if backend:
+            self.backend = backend
 
     def set_password(self, raw_password):
         """This is copy-paste from django.contrib.auth.models.User.set_password()"""
