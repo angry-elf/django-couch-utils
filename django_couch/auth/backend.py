@@ -30,7 +30,9 @@ class User(Document):
         else:
             backend = None
             
-        self.last_login = self.last_login.strftime(settings.DATETIME_FMT)
+        if hasattr(self, 'last_login'):
+            self.last_login = self.last_login.strftime(settings.DATETIME_FMT)
+
         del(self.backend)
         Document.save(self, *args, **kwargs)
 
