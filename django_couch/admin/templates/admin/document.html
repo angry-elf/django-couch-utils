@@ -12,11 +12,32 @@
     {% if doc_item.attachments %}
     <h2>Attachments</h2>
     {% if document.attachments %}
-    <ul>
-        {% for name, data in document.attachments.iteritems %}
-        <li><a href="{% url couchdb:attachment app=app.name doc_type=doc_type doc_id=document.id filename=name %}">{{ name }}</a> ({{ data.length|filesizeformat }}) <a href="{% url couchdb:attachment_delete app=app.name doc_type=doc_type doc_id=document.id filename=name %}">x</a></li>
-        {% endfor %}
-    </ul>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>File</th>
+                <th>Size</th>
+                <th>Type</th>
+                <th>Code</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for name, data in document.attachments.iteritems %}
+            <tr>
+              <td><a href="{% url couchdb:attachment app=app.name doc_type=doc_type doc_id=document.id filename=name %}">{{ name }}</a></td>
+              <td>{{ data.length|filesizeformat }}</td>
+              <td>{{ data.content_type }}</td>
+              <td>
+                  {% templatetag openblock %} image "{{ name }}" ["title" ["width" ["height"]]] {% templatetag closeblock %}<br/>
+                  {% templatetag openblock %} attachment "{{ name }}" {% templatetag closeblock %}<br/>
+              </td>
+              <td><a href="{% url couchdb:attachment_delete app=app.name doc_type=doc_type doc_id=document.id filename=name %}">x</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
     {% endif %}
 
     <input type="file" name="file1" /><br/>

@@ -58,12 +58,13 @@ def documents(request, app, doc_type):
     doc_item = _find_doc_type(app_item, doc_type)
     
 
-    rows = request._db(app_item.get('db')).view(doc_item['view']).rows
-    
+    view = request._db(app_item.get('db')).view(doc_item['view'])
+
     return {
         'app': app_item,
         'doc_type': doc_type,
-        'rows': rows,
+        'total': view.total_rows,
+        'rows': view.rows,
     }
 
 

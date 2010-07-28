@@ -3,7 +3,8 @@
 {% block main %}
 {% include "admin/snippets/path.html" %}
 
-<h2>Choose <s>your destiny</s> document</h2>
+<h2>Choose document ({{ total }} total)</h2>
+<a href="{% url couchdb:document_add app=app.name doc_type=doc_type %}">New</a>
 <table border=1>
     <thead>
       <tr>
