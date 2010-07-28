@@ -57,8 +57,7 @@ def documents(request, app, doc_type):
     app_item = _find_app(app)
     doc_item = _find_doc_type(app_item, doc_type)
     
-
-    view = request._db(app_item.get('db')).view(doc_item['view'])
+    view = request._db(app_item.get('db')).view(doc_item['view'], descending = doc_item.get('descending', False))
 
     return {
         'app': app_item,
