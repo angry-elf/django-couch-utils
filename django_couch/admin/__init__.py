@@ -16,13 +16,21 @@ def autodiscover():
     for app in settings.INSTALLED_APPS:
         m = __import__(app, globals(), locals(), ['admin'], -1)
 
-        if hasattr(m, 'admin') and hasattr(m.admin, 'doc_types'):
-
-            admin.apps.append({
-                'app': app,
-                'name': app[app.rfind('.') + 1:],
-                'doc_types': m.admin.doc_types,
-            })
+        if hasattr(m, 'admin'):
+            doc_types = []
+            urls = []
+            if hasattr(m.admin, 'doc_types'):
+                doc_types = m.admin.doc_types
                 
+            if hasattr(m.admin, 'urls'):
+                urls = m.admin.urls
 
+            if doc_types or urls:
+                admin.apps.append({
+                    'app': app,
+                    'name': app[app.rfind('.') + 1:],
+                    'doc_types': doc_types,
+                    'urls': urls,
+                })
+            
             

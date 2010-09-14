@@ -8,6 +8,10 @@
         {% for item in app.doc_types %}
         <li><a href="{% url couchdb:documents app=app.name doc_type=item.type %}">{{ item.name|capfirst }}</a></li>
         {% endfor %}
+        {% for item in app.urls %}
+        <li><a href="{% url couchdb:root %}{{ item.0 }}">{{ item.2 }}</a></li>
+        {% endfor %}
+        
     </ul>
 </div>
 {% endfor %}
