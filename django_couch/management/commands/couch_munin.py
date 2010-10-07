@@ -17,9 +17,9 @@ class CouchTypesPlugin(MuninPlugin):
     vlabel = "count"
     category = "couchdb"
 
-    def __init__(self, db, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         MuninPlugin.__init__(self, *args, **kwargs)
-        self.db = django_couch.db(db)
+        self.db = django_couch.db(settings.COUCHDB_MUNIN[0])
 
     @property
     def fields(self):
@@ -30,17 +30,17 @@ class CouchTypesPlugin(MuninPlugin):
             "type": "COUNTER",
             "min": 0,
             
-            }) for row in self.db.view('types/list', reduce = True, group = True).rows]
+            }) for row in self.db.view(settings.COUCHDB_MUNIN[1], reduce = True, group = True).rows]
 
     def execute(self):
-        for row in self.db.view('types/list', reduce = True, group = True).rows:
+        for row in self.db.view(settings.COUCHDB_MUNIN[1], reduce = True, group = True).rows:
             print "%s.value %s" % (row.key, row.value)
         
 
 class Command(BaseCommand):
     
-    def execute(self, db, *args, **options):
-        munin = CouchTypesPlugin(db)
+    def execute(self, *args, **options):
+        munin = CouchTypesPlugin()
         sys.argv = [''] + list(args)
         munin.run()
         
