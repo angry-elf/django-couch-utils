@@ -5,6 +5,7 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import user_passes_test
 from django.core.urlresolvers import reverse
+from django.conf import settings
 
 from couchdb.client import Document
 
@@ -33,16 +34,16 @@ def _find_doc_type(app_item, doc_type):
 
 
 
-@user_passes_test(lambda u: getattr(u, 'admin', False))
+@user_passes_test(settings.COUCHDB_AUTH_ADMIN_LAMBDA)
 @render_to('admin/root.html')
 def root(request):
     admin = Admin()
-    print admin.apps
+    #print admin.apps
     
     return {'apps': admin.apps}
 
 
-@user_passes_test(lambda u: getattr(u, 'admin', False))
+@user_passes_test(settings.COUCHDB_AUTH_ADMIN_LAMBDA)
 @render_to('admin/app.html')
 def app(request, app):
 
@@ -51,7 +52,7 @@ def app(request, app):
     return {'app': app_item}
 
 
-@user_passes_test(lambda u: getattr(u, 'admin', False))
+@user_passes_test(settings.COUCHDB_AUTH_ADMIN_LAMBDA)
 @render_to('admin/documents.html')
 def documents(request, app, doc_type):
     app_item = _find_app(app)
@@ -67,7 +68,7 @@ def documents(request, app, doc_type):
     }
 
 
-@user_passes_test(lambda u: getattr(u, 'admin', False))
+@user_passes_test(settings.COUCHDB_AUTH_ADMIN_LAMBDA)
 @render_to('admin/document.html')
 def document(request, app, doc_type, doc_id = None):
     app_item = _find_app(app)
@@ -104,7 +105,7 @@ def document(request, app, doc_type, doc_id = None):
 
 
 
-@user_passes_test(lambda u: getattr(u, 'admin', False))
+@user_passes_test(settings.COUCHDB_AUTH_ADMIN_LAMBDA)
 @render_to('admin/document_delete.html')
 def document_delete(request, app, doc_type, doc_id):
     app_item = _find_app(app)
@@ -122,6 +123,7 @@ def document_delete(request, app, doc_type, doc_id):
     }
 
 
+@user_passes_test(settings.COUCHDB_AUTH_ADMIN_LAMBDA)
 @user_passes_test(lambda u: getattr(u, 'admin', False))
 def attachment(request, app, doc_type, doc_id, filename):
     app_item = _find_app(app)
@@ -138,7 +140,7 @@ def attachment(request, app, doc_type, doc_id, filename):
     else:
         raise Http404('File not found')
 
-@user_passes_test(lambda u: getattr(u, 'admin', False))
+@user_passes_test(settings.COUCHDB_AUTH_ADMIN_LAMBDA)
 @render_to('admin/attachment_delete.html')
 def attachment_delete(request, app, doc_type, doc_id, filename):
     app_item = _find_app(app)
