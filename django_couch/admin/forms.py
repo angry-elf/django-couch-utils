@@ -17,7 +17,12 @@ class CouchAdminForm(forms.Form):
         
         if not self.initial.get('_id'):
             self.initial.type = self.TYPE
-            self.initial.create('%s%s' % (self.PREFIX, slugify(self.cleaned_data[self.ID_FIELD])))
+            if isinstance(self.ID_FIELD, list):
+                id_field = slugify('-'.join([self.cleaned_data[s] for s in self.ID_FIELD]))
+            else:
+                id_field = slugify(self.cleaned_data[self.ID_FIELD])
+                
+            self.initial.create('%s%s' % (self.PREFIX, id_field))
         else:
             self.initial.save()
 
