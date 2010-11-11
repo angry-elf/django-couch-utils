@@ -91,7 +91,7 @@ class Command(BaseCommand):
         macros = macros_load(path)
         
         for item in os.listdir(path):
-            if item in ['.svn', '_backup', '_macros'] or not os.path.isdir(join(path, item)):
+            if item in ['_backup', '_macros'] or not os.path.isdir(join(path, item)) or item.startswith('.'):
                 continue
             #print item
             
@@ -119,7 +119,6 @@ class Command(BaseCommand):
                             d = Document(_id = '_design/%s' % item,
                                          language = language,
                                          views = {})
-                        
                         if not view in d['views']:
                             d['views'][view] = {}
                         
