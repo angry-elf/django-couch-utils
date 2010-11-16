@@ -1,5 +1,5 @@
 from datetime import datetime
-from couchdb.client import Document
+from couchdbcurl.client import Document
 from django.conf import settings
 
 from django.contrib.auth.models import get_hexdigest

@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.core.urlresolvers import reverse
 from django.conf import settings
 
-from couchdb.client import Document
+from couchdbcurl.client import Document
 
 def _find_app(app_name):
     app_item = None
