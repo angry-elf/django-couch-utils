@@ -8,7 +8,7 @@ from django.core.management.base import BaseCommand
 
 from os.path import join
 
-from couchdb import Server, Document, ResourceNotFound
+from couchdbcurl import Server, Document, ResourceNotFound
 import django_couch
 from optparse import make_option
 
