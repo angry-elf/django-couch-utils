@@ -52,7 +52,7 @@ class Command(BaseCommand):
 
                 d = db[row.id]
 
-                for function in d['views']:
+                for function in d.get('views', []):
                     worker = Pinger(verbosity, db_key, view, function)
                     workers.append(worker)
                     worker.start()
