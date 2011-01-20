@@ -2,12 +2,13 @@
 
 from setuptools import setup, find_packages
 setup(name='django-couch-utils',
-      version='1.0.4',
+      version='1.0.5',
       description='Handy tools and helpers for django projects, powered by CouchDB',
       author='Alexey Loshkarev',
       author_email='elf2001@gmail.com',
       url='https://github.com/angry-elf/django-couch-utils/',
       packages=find_packages(),
+      #package_data={'django_couch.admin': 'templates'},
       license='GPL',
       classifiers=[
           "Development Status :: 5 - Production/Stable", 
@@ -18,5 +19,5 @@ setup(name='django-couch-utils',
           "Topic :: Software Development :: Libraries :: Python Modules",
           ],
       install_requires = ['couchdb-python-curl'],
-      package_data = {'django_couch.admin': ['django_couch/admin/templates/admin/*.html'] },
+      package_data = {'django_couch.admin': ['templates/admin/*.html'] },
       )
