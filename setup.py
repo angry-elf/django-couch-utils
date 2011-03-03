@@ -2,7 +2,7 @@
 
 from setuptools import setup, find_packages
 setup(name='django-couch-utils',
-      version='1.0.5',
+      version='1.2.0',
       description='Handy tools and helpers for django projects, powered by CouchDB',
       author='Alexey Loshkarev',
       author_email='elf2001@gmail.com',
@@ -20,4 +20,6 @@ setup(name='django-couch-utils',
           ],
       install_requires = ['couchdb-python-curl'],
       package_data = {'django_couch.admin': ['templates/admin/*.html'] },
+      include_package_data = True,
+      #data_files = ['admin/templates/admin/base.html']
       )
