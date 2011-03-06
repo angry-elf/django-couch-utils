@@ -177,8 +177,8 @@ class Command(BaseCommand):
                 else:
                     if verbose:
                         print "  Deleting whole document"
-                        doc_deleted = True
-                        delete_docs.append(row.id)
+                    doc_deleted = True
+                    delete_docs.append(row.id)
                 
                 if not doc_deleted and doc_changed:
                     if real_run:
