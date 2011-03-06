@@ -24,6 +24,7 @@ class Command(BaseCommand):
         make_option('--database', '-d', action = 'store', dest = 'database', help = u'Database name'),
         make_option('--path', '-p', action = 'store', dest = 'path', help = u'Working directory', default = '.'),
         make_option('--name', '-n', action = 'store', dest = 'dbkey', help = u'Database key (from settings.py). Will override --server and --database arguments', default = None),
+        make_option('--delete', '-r', action = 'store_true', dest = 'delete', help = u'Delete exceed items from database during restore', default = False),
         
     )
 
@@ -61,7 +62,7 @@ class Command(BaseCommand):
             self.backup(db, options.get('path'))
         elif command == 'restore':
             print "Restoring local path to remote server", options.get('path')
-            self.restore(db, options.get('path'), options.get('real_run'), int(options['verbosity']) > 1)
+            self.restore(db, options.get('path'), options)
         
         
     def backup(self, db, path):
@@ -97,7 +98,11 @@ class Command(BaseCommand):
                     f.close()
                     
                 
-    def restore(self, db, path, real_run, verbose):
+    def restore(self, db, path, options):
+        
+        real_run = options.get('real_run')
+        verbose = int(options.get('verbosity')) > 1
+        
         def macros_load(path):
             macros = {}
             if os.path.exists(join(path, '_macros')):
@@ -112,8 +117,92 @@ class Command(BaseCommand):
         
         macros = macros_load(path)
         
+        
+        if options['delete']:
+            print "Checking for exceed views/filters/shows in design documents"
+            delete_docs = []
+            for row in django_couch.design_docs(db):
+                doc_changed = False
+                doc_deleted = False
+                
+                doc = db[row.id]
+                print os.path.basename(doc.id)
+                extension = self.extensions[doc.get('language', 'javascript')]
+                doc_name = '%s.%s' % (os.path.basename(doc.id), extension)
+                
+                if os.path.exists(join(path, doc_name)):
+                    if 'views' in doc:
+                        view_path = join(path, doc_name, 'views')
+                        if verbose:
+                            print '  checking path', view_path
+                        
+                        if os.path.exists(view_path):
+                            for fun_name in doc['views'].keys(): # copy keys for processing, allow to delete them from loop
+                                if verbose:
+                                    print '    checking function', fun_name
+                        
+                                if not os.path.exists(join(view_path, fun_name)):
+                                    del(doc['views'][fun_name])
+                                    if verbose:
+                                        print '      function does not exists. Deleting'
+                                    doc_changed = True
+                                    
+                            pass
+                        else:
+                            changed = True
+                            del(doc['views'])
+                            if verbose:
+                                print "  Deleting unexistent views entry"
+                    for key in ['filters', 'shows']:
+                        if key in doc:
+                            key_path = join(path, doc_name, key)
+                            if verbose:
+                                print '  checking path', key_path
+
+                            if os.path.exists(key_path):
+                                for fun_name in doc[key].keys():
+                                    if verbose:
+                                        print '    checking function', fun_name
+                                    if not os.path.exists(join(key_path, '%s.%s' % (fun_name, extension))):
+                                        del(doc[key][fun_name])
+                                        if verbose:
+                                            print '    function does not exists. Deleting'
+                                        doc_changed = True
+                            else:
+                                doc_changed = True
+                                del(doc[key])
+                                if verbose:
+                                    print "  Deleting unexistent %s entry" % key
+
+                else:
+                    if verbose:
+                        print "  Deleting whole document"
+                        doc_deleted = True
+                        delete_docs.append(row.id)
+                
+                if not doc_deleted and doc_changed:
+                    if real_run:
+                        doc.save()
+                    else:
+                        if verbose:
+                            print "Fake run. Skipping doc save"
+                
+            for doc_id in delete_docs:
+                if real_run:
+                    doc = db[doc_id]
+                    doc.delete()
+                else:
+                    if verbose:
+                        print "Fake run. Skipping doc deleting"
+
+                
+
+
+        updated = 0
+        created = 0
+        skipped = 0
+
         for item in os.listdir(path):
-            print item
             if not '.' in item:
                 if verbose:
                     print "Ignoring", item
@@ -125,15 +214,20 @@ class Command(BaseCommand):
                     print "Ignoring", item
                 continue
             
+            print item
+            
             language = self.extension2lang[extension]
             
             doc_id = '_design/%s' % doc_name
             changed = False
+            
             try:
                 doc = db[doc_id]
+                creating = False
                 if verbose:
                     print "Design-document %s exists" % doc_id
             except ResourceNotFound:
+                creating = True
                 if verbose:
                     print "Design-document %s not exists. Creating new" % doc_id
                 doc = Document({
@@ -145,6 +239,12 @@ class Command(BaseCommand):
             for key in os.listdir(join(path, item)):
                 if key == 'views':
                     for view_name in os.listdir(join(path, item, key)):
+                        
+                        if view_name.startswith('.'):
+                            if verbose:
+                                print "Skipping hidden file %s" % view_name
+                            continue
+                        
                         print "  %s (views)" % view_name
                         map_filename = join(path, item, key, view_name, 'map.%s' % extension)
                         reduce_filename = join(path, item, key, view_name, 'reduce.%s' % extension)
@@ -184,8 +284,14 @@ class Command(BaseCommand):
                     
                 if key in ['filters', 'shows']:
                     for func_filename in os.listdir(join(path, item, key)):
+                        if func_filename.startswith('.'):
+                            if verbose:
+                                print "Skipping hidden file %s" % func_filename
+                            continue
+                        
                         if not func_filename.endswith('.' + extension):
                             continue
+                        
                         func_name = os.path.splitext(func_filename)[0]
                         print '  %s (%s)' % (func_name, key)
                         if not key in doc:
@@ -204,56 +310,23 @@ class Command(BaseCommand):
                             
                         
             if changed:
-                print "Changed. Saving..."
-                doc.save()
-                
-                            
-                        
+                if creating:
+                    created += 1
+                else:
+                    updated += 1
+                    
+                if real_run:
+                    print "Changed. Saving..."
+                    doc.save()
+                else:
+                    print "Fake run. Skipping changes"
+            else:
+                skipped += 1
 
-        return 
-            ## for view in os.listdir(join(path, item)):
-            ##     if view == '.svn':
-            ##         continue
-                
-                
-            ##     for fun_f in os.listdir(join(path, item, view)):
-            ##         if fun_f in ['map.js', 'reduce.js', 'map.py', 'reduce.py']:
+        if not real_run:
+            print "Fake run done"
+        print "%d created, %d updated, %d skipped" % (created, updated, skipped)
                         
-            ##             fun, ext = os.path.splitext(fun_f)
-                        
-            ##             #print "     ", fun
-                        
-            ##             if ext == '.js':
-            ##                 language = 'javascript'
-            ##             elif ext == '.py':
-            ##                 language = 'python'
-                            
-            ##             try:
-            ##                 d = db['_design/%s' % item]
-            ##             except ResourceNotFound:
-            ##                 print "Creating design document %s" % item
-            ##                 d = Document(_id = '_design/%s' % item,
-            ##                              language = language,
-            ##                              views = {})
-            ##             if not view in d['views']:
-            ##                 d['views'][view] = {}
-                        
-                        
-            ##             fun_new = file(join(path, item, view, fun_f), 'r').read()
-
-            ##             if ext in macros:
-            ##                  fun_new = fun_new % macros[ext]
-
-            ##             if not fun in d['views'][view] or fun_new != d['views'][view][fun]:
-            ##                 print "      Updating view (%s/%s[%s])" % (item, view, fun)
-            ##                 d['views'][view][fun] = fun_new
-            ##                 if real_run:
-            ##                     db[d.id] = d
-            ##                 else:
-            ##                     print "Fake run, will not change anything"
-
-
-
 
 
 
