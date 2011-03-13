@@ -13,13 +13,14 @@ import django_couch
 from time import time
 
 class CouchTypesPlugin(MuninPlugin):
-    title = "DocTypes grow stats"
+    #title = 
     vlabel = "count"
     category = "couchdb"
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, db_key, *args, **kwargs):
         MuninPlugin.__init__(self, *args, **kwargs)
-        self.db = django_couch.db(settings.COUCHDB_MUNIN[0])
+        self.db = django_couch.db(db_key)
+        self.title = "DocTypes grow stats (%s)" % (db_key)
 
     @property
     def fields(self):
@@ -30,17 +31,17 @@ class CouchTypesPlugin(MuninPlugin):
             "type": "COUNTER",
             "min": 0,
             
-            }) for row in self.db.view(settings.COUCHDB_MUNIN[1], reduce = True, group = True).rows]
+            }) for row in self.db.view('types/list', reduce = True, group = True).rows]
 
     def execute(self):
-        for row in self.db.view(settings.COUCHDB_MUNIN[1], reduce = True, group = True).rows:
+        for row in self.db.view('types/list', reduce = True, group = True).rows:
             print "%s.value %s" % (row.key, row.value)
         
 
 class Command(BaseCommand):
     
-    def execute(self, *args, **options):
-        munin = CouchTypesPlugin()
+    def execute(self, db_key, *args, **options):
+        munin = CouchTypesPlugin(db_key)
         sys.argv = [''] + list(args)
         munin.run()
         
