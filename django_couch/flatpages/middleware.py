@@ -2,6 +2,7 @@ from annoying.decorators import render_to
 from django.http import Http404
 from django.conf import settings
 from django.shortcuts import render_to_response
+from django.template import RequestContext
 
 class FlatpageFallbackMiddleware(object):
     def process_response(self, request, response):
@@ -26,7 +27,7 @@ def flatpage(request):
         row = rows[0]
 
 
-        return render_to_response('static.html', {'doc': row.doc})
+        return render_to_response('static.html', {'doc': row.doc}, RequestContext(request))
     else:
         raise Http404('Page not found')
     
