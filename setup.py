@@ -2,7 +2,7 @@
 
 from setuptools import setup, find_packages
 setup(name='django-couch-utils',
-      version='1.1.4',
+      version='1.1.5',
       description='Handy tools and helpers for django projects, powered by CouchDB',
       author='Alexey Loshkarev',
       author_email='elf2001@gmail.com',
