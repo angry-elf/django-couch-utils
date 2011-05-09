@@ -19,7 +19,6 @@ class FlatpageFallbackMiddleware(object):
                 raise
             return response
 
-#@render_to
 def flatpage(request):
     
     rows = request.db.view(settings.COUCHDB_FLATPAGES, key = request.path, include_docs = True).rows
